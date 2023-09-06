@@ -31,23 +31,27 @@ for i in range(len(samples)):
 #Subset data of interest
 expression = data[row, cols]
 expression_male = data[row,cols_male]
+expression_male2 = data[row, 2 * np.array(cols_male)]
 
 # Prepare data
 x = ["10", "11", "12", "13", "14A", "14B", "14C", "14D"]
 y = expression
 y1 = expression_male
+y2 = expression_male2
 
 
 # Plot data
 fig, ax = plt.subplots()
 plt.xticks(rotation = 45)
-ax.set_title( "Sxl (FBtr0073461)" )
-ax.plot( x, y)
-ax.plot( x, y1)
+ax.set_title( "Sxl (FBtr0073461) mRNA abundance" )
+ax.plot(x, y)
+ax.plot(x, y1)
+ax.plot(x, y2)
 ax.set_xlabel("Developmental Stage")
 ax.set_ylabel(" mRNA abundance(RPKM)")
-ax.legend(['female','male'])
+ax.legend(['female','male',"male2x"])
 plt.tight_layout() #order matters, has to be after this 
-fig.savefig( "FBtr0073461_maleplot.png" )
+fig.savefig( "FBtr0073461_male2xplot.png" )
 plt.show()
 # #plt.close( fig )
+
