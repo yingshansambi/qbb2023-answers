@@ -43,7 +43,7 @@ y2 = expression_male2
 # Plot data
 fig, ax = plt.subplots()
 plt.xticks(rotation = 45)
-ax.set_title( "Sxl (FBtr0073461) mRNA abundance" )
+ax.set_title( "SisA (FBtr0073461) mRNA abundance" )
 ax.plot(x, y)
 ax.plot(x, y1)
 ax.plot(x, y2)
@@ -54,4 +54,8 @@ plt.tight_layout() #order matters, has to be after this
 fig.savefig( "FBtr0073461_male2xplot.png" )
 plt.show()
 # #plt.close( fig )
+
+
+
+
 
