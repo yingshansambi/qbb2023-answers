@@ -102,7 +102,8 @@
 # plt.show()
 # fig.savefig( "Exercise2-Histogram" )
 
-#Execise 3 
+#Execise 3 - Part 1 
+
 
 import numpy as np 
 import matplotlib.pyplot as plt 
@@ -119,29 +120,53 @@ def WFModel(AF,Pop): #AF = allele frequency
 
 # print(WFModel(0.5,200))
 
-pop_size = [100, 500, 1000, 2000, 5000]
-genlist_1= []
-for pop in pop_size:
-	for i in range(100): 
-		trajectory = WFModel(0.5,pop) #with fixed allele frequency = 0.5 
-		genlist_1.append(trajectory[1])
-# print(genlist_1)
+# pop_size = [100, 500, 1000, 2000, 5000]
+# genlist_1= []
+# for pop in pop_size:
+# 	for i in range(100): 
+# 		trajectory = WFModel(0.5,pop) #with fixed allele frequency = 0.5 
+# 		genlist_1.append(trajectory[1])
+# # print(genlist_1)
 
-averagelist=[]
+# averagelist=[]
+# for i in (0, 1, 2, 3, 4):
+# 	startPos = i*100
+# 	stopPos = i*100 + 99 
+# 	averagelist.append(sum(genlist_1[startPos:stopPos])/100)
+# print(averagelist)
+
+# fig, ax = plt.subplots()
+# ax.scatter(pop_size, averagelist)
+# ax.set_xlabel("Population Size")
+# ax.set_ylabel("Avaerge Time to Fixation(year)")
+# ax.set_title( "Average Time to Fixation across Population Size" )
+# fig.savefig( "Average_Time_vs_Population Size" )
+# plt.show()
+
+# Exerise 3 - Part 2 
+
+frequency = [0.01, 0.1, 0.25, 0.5, 0.75]
+genlist_2 = []
+for freq in frequency:
+ 	for i in range(10):
+ 		trajectory = WFModel(freq,1000) # with fixed population = 1000
+ 		genlist_2.append(trajectory[1])
+#print(genlist_2)
+
+averagelist_2=[]
 for i in (0, 1, 2, 3, 4):
-	startPos = i*100
-	stopPos = i*100 + 99 
-	averagelist.append(sum(genlist_1[startPos:stopPos])/100)
-print(averagelist)
+	startPos = i
+	stopPos = i + 9 
+	averagelist_2.append(sum(genlist_2[startPos:stopPos])/10)
+#print(averagelist_2)
 
 fig, ax = plt.subplots()
-ax.scatter(pop_size, averagelist)
-ax.set_xlabel("Population Size")
+ax.scatter(frequency, averagelist_2)
+ax.set_xlabel("Allele Frequency")
 ax.set_ylabel("Avaerge Time to Fixation(year)")
-ax.set_title( "Average Time to Fixation across Population Size" )
-fig.savefig( "Average Time to Fixation across Population Size" )
+ax.set_title( "Average Time to Fixation across Allele Frequencies" )
+fig.savefig( "Average_Time_vs_Allele_Frequencies" )
 plt.show()
-
 
 
 
