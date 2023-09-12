@@ -1,20 +1,21 @@
 #!/usr/bin/env python 
 
 #Exercise 1 
-# import numpy as np 
-# import matplotlib.pyplot as plt 
+import numpy as np 
+import matplotlib.pyplot as plt 
 
-# def WFModel(AF,Pop): #AF = allele frequency 
-# 	AFlist = []
-# 	i = 0
-# 	while 0< AF < 1: 
-# 		i = i + 1 
-# 		num = np.random.binomial(2*Pop, AF)
-# 		AF = num/(2*Pop)
-# 		AFlist.append(AF)
-# 	return [AFlist, i]
+def WFModel(AF,Pop): #AF = allele frequency 
+	AFlist = []
+	i = 0
+	while 0< AF < 1: 
+		i = i + 1 
+		num = np.random.binomial(2*Pop, AF)
+		AF = num/(2*Pop)
+		AFlist.append(AF)
+	return [AFlist, i]
 
-# print(WFModel(0.5,200))
+gen = WFModel(0.5,200)[1]
+print(gen)
 
 
 # import numpy as np 
@@ -105,18 +106,18 @@
 #Execise 3 - Part 1 
 
 
-import numpy as np 
-import matplotlib.pyplot as plt 
+# import numpy as np 
+# import matplotlib.pyplot as plt 
 
-def WFModel(AF,Pop): #AF = allele frequency 
-	AFlist = []
-	i = 0
-	while 0< AF < 1: 
-		i = i + 1 
-		num = np.random.binomial(2*Pop, AF)
-		AF = num/(2*Pop)
-		AFlist.append(AF)
-	return [AFlist, i]
+# def WFModel(AF,Pop): #AF = allele frequency 
+# 	AFlist = []
+# 	i = 0
+# 	while 0< AF < 1: 
+# 		i = i + 1 
+# 		num = np.random.binomial(2*Pop, AF)
+# 		AF = num/(2*Pop)
+# 		AFlist.append(AF)
+# 	return [AFlist, i]
 
 # print(WFModel(0.5,200))
 
