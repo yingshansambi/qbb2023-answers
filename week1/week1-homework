@@ -1,0 +1,35 @@
+#!/usr/bin/env python 
+
+#Exercises 1 - Step 1.1 
+import pandas as pd 
+
+dataframe = pd.read_csv('/Users/cmdb/Desktop/backup data/Week1-HW/aau1043_dnm.csv')
+
+# print(dataframe)
+
+deNovoCount = {}
+for i in range(len(dataframe)): 
+	proband_id = dataframe.loc[i,'Proband_id']
+	parent = dataframe.loc[i, 'Phase_combined']
+	if proband_id not in deNovoCount: 
+		deNovoCount[proband_id] = [0, 0]
+	if parent == 'mother':
+		deNovoCount[proband_id][0] += 1
+	elif parent == 'father':
+		deNovoCount[proband_id][1] += 1 
+#print(deNovoCount)
+
+#Step1.3 
+
+deNovoCountDF = pd.DataFrame.from_dict(deNovoCount, orient = 'index', columns = ['maternal_dnm', 'paternal_dnm'])
+print(deNovoCountDF)
+
+#Step1.4 
+
+dataframe1= pd.read_csv('/Users/cmdb/Desktop/backup data/Week1-HW/aau1043_parental_age.csv', index_col = 0)
+print(dataframe1)
+
+# #Step1.5 
+dfCombined = pd.concat([deNovoCountDF, dataframe1], axis = 1, join = 'inner')
+print(dfCombined)
+
