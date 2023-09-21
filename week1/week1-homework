@@ -57,7 +57,7 @@ import matplotlib.pyplot as plt
 # plt.show()
 # fig2.savefig("ex2_b.png")
 
-#Step 2.2 
+#Step 2.2 - 2.4
 import scipy.stats as sps 
 import statsmodels.formula.api as smf 
 import statsmodels.api as sm 
@@ -65,9 +65,25 @@ import statsmodels.api as sm
 # model = smf.ols(formula = "maternal_dnm ~ 1 + Mother_age", data = dfCombined)
 # result_m = model.fit()
 # print(result_m.summary())
+# print(result_m.pvalues)
 
 
 model = smf.ols(formula = "paternal_dnm ~ 1 + Father_age", data = dfCombined)
 result_p = model.fit()
 print(result_p.summary())
+print(result_p.pvalues)
 
+# Step 2.5 
+# fig3, ax = plt.subplots()
+# plt.hist(dfCombined["paternal_dnm"],bins = 50, label =['paternal_dnm'],alpha = 0.5)
+# plt.hist(dfCombined["maternal_dnm"],bins = 50, label =['maternal_dnm'],alpha = 0.5)
+# plt.legend(loc='upper right')
+# ax.set_xlabel("Inherited de novo Mutations (dnm)")
+# ax.set_ylabel("Number of Counts")
+# ax.set_title("Maternal and Paternal Inherited de novo Mutations (dnm)")
+# plt.tight_layout()
+# plt.show()
+# fig3.savefig("ex2_c.png")
+
+#Step2.6 
+print(sps.ttest_ind(dfCombined["paternal_dnm"],dfCombined["maternal_dnm"]))
