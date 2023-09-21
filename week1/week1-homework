@@ -33,3 +33,43 @@ print(dataframe1)
 dfCombined = pd.concat([deNovoCountDF, dataframe1], axis = 1, join = 'inner')
 print(dfCombined)
 
+
+#Exercises 2 
+
+#Step 2.1
+import matplotlib.pyplot as plt 
+
+fig1, ax1 = plt.subplots()
+ax1.scatter(dfCombined["Mother_age"], dfCombined["maternal_dnm"], c = "red")
+ax1.set_xlabel("Mother Age(Year Old)")
+ax1.set_ylabel("Maternal Inherited de novo Mutations")
+ax1.set_title("Maternal Inherited de novo Mutations across Mother Ages")
+plt.show()
+fig1.savefig("ex2_a.png")
+
+
+
+fig2, ax2 = plt.subplots()
+ax2.scatter(dfCombined["Father_age"], dfCombined["paternal_dnm"], c = "blue")
+ax2.set_xlabel("Father Age(Year Old)")
+ax2.set_ylabel("Paternal Inherited de novo Mutations")
+ax2.set_title("Paternal Inherited de novo Mutations across Father Ages")
+plt.show()
+fig2.savefig("ex2_b.png")
+
+
+
+
+
+# ax.hist(dfCombined["paternal_dnm"][dfCombined["Father_age"]], label = "parental", bins = 30, alpha = 0.5)
+
+
+
+# import scipy.stats as sps 
+# import statsmodels.formula.api as smf 
+# import statsmodels.api as sm 
+
+
+# model = smf.ols(formula = "maternal_dnm ~ 1 + Mother_age", data = dfCombined)
+# results = model.fit()
+# print(results.summary())
