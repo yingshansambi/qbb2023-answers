@@ -1,0 +1,143 @@
+#!/usr/bin/env python
+
+#Week7 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+#Part3a
+
+nanotable = pd.read_table('ONT_data/ONT.cpg.chr2.bedgraph',header = None, delim_whitespace = True)
+bisulfitetable = pd.read_table('ONT_data/bisulfite.cpg.chr2.bedgraph',header = None, delim_whitespace = True)
+
+nanorow = set(nanotable.loc[:,1].to_list())
+bisulfrow = set(bisulfitetable.loc[:,1].to_list())
+biOnly = []
+nanoOnly = []
+shared = []
+
+for a in nanorow: 
+	if a in bisulfrow:
+		shared.append(a)
+	else: 
+		nanoOnly.append(a)
+
+for b in bisulfrow: 
+	if b not in nanorow:
+		biOnly.append(b)
+
+#Part3b 
+fig,(ax1,ax2,ax3) = plt.subplots(3,1)
+nanocoverage = nanotable.iloc[:,4]
+bisulcoverage = bisulfitetable.iloc[:,4]
+x_axis = len(bisulcoverage)
+ax1.hist(nanocoverage,color = 'blue',bins=50, label = "nanopore seq",range = (0,100),alpha=0.5)
+ax1.hist(bisulcoverage,color = 'red',bins=50, label = "bisulfite seq",range = (0,100),alpha=0.5)
+ax1.set_title( "Coverage of CpG Distribution",loc = "center" )
+ax1.set_xlabel("Coverage of CpG")
+ax1.set_ylabel("Frequency")
+ax1.legend()
+
+#Part 3c 
+nanomethyl_scores_list =[]
+
+nanomethyl_scores = {}
+bisul_scores = {}
+
+nanotable = nanotable.set_index(1)
+bisulfitetable = bisulfitetable.set_index(1)
+
+print(nanotable)
+print(bisulfitetable)
+
+nanomethyl_scores = []
+bisulmethyl_scores = []
+
+for i in shared:
+	nanomethyl_scores.append(float(nanotable.loc[i,3]))
+	bisulmethyl_scores.append(float(bisulfitetable.loc[i,3]))
+
+histogram, x_edges, y_edges = np.histogram2d(nanomethyl_scores, bisulmethyl_scores,bins = 100)
+histogram_log = np.log10(histogram + 1)
+ax2.set_title( "Methylation scores Heatmap" )
+ax2.set_xlabel("Nanopore seq")
+ax2.set_ylabel("Bisulfite seq")
+ax2.imshow(histogram_log,origin = "lower")
+
+
+
+#Part3d
+normal_nano = pd.read_table('ONT_data/normal.ONT.chr2.bedgraph',header = None, delim_whitespace = True)
+normal_bis = pd.read_table('ONT_data/normal.bisulfite.chr2.bedgraph',header = None, delim_whitespace = True)
+tumor_nano = pd.read_table('ONT_data/tumor.ONT.chr2.bedgraph',header = None, delim_whitespace = True)
+tumor_bis = pd.read_table('ONT_data/tumor.bisulfite.chr2.bedgraph',header = None, delim_whitespace = True)
+
+noraml_nanorow = normal_nano.iloc[:,1]
+normal_bisulfrow = normal_bis.iloc[:,1]
+tumor_nanorow = tumor_nano.iloc[:,1]
+tumor_bisulfrow = tumor_bis.iloc[:,1]
+
+shared_nano = []
+shared_bis = []
+
+for snano in noraml_nanorow: 
+ 	if snano in tumor_nanorow:
+ 		shared_nano.append(snano)
+
+for sbis in normal_bisulfrow: 
+	if sbis in tumor_bisulfrow: 
+		shared_bis.append(sbis)
+
+sharednano_tumorcoverage = []
+for i in shared_nano:
+	sharednano_tumorcoverage.append(tumor_nano.iloc[:,3][i])
+print(sharednano_tumorcoverage[1:20])
+
+sharednano_normalcoverage = []
+for i in shared_nano:
+	sharednano_normalcoverage.append(normal_nano.iloc[:,3][i])
+print(sharednano_normalcoverage[1:20])
+
+sharedbis_tumorcoverage = []
+for position in shared_bis: 
+	sharedbis_tumorcoverage.append(tumor_bis.iloc[:,3][position])
+print(sharedbis_tumorcoverage[1:50])
+
+sharedbis_normalcoverage = []
+for position in shared_bis: 
+	sharedbis_normalcoverage.append(normal_bis.iloc[:,3][position])
+print(sharedbis_normalcoverage[1:50])
+
+nano_diff =[]
+for i in range(len(sharednano_normalcoverage)):
+	nano_diff.append(sharednano_normalcoverage[i] - sharednano_tumorcoverage[i])
+
+nano_diff = [nd for nd in nano_diff if nd !=0.0]
+print(nano_diff[1:20])
+
+print(len(sharedbis_normalcoverage))
+print(len(sharedbis_tumorcoverage))
+
+bis_diff =[]
+for i in range(len(sharedbis_normalcoverage)):
+	bis_diff.append(sharedbis_normalcoverage[i] - sharedbis_tumorcoverage[i])
+		
+
+print(bis_diff[1:20])
+
+bis_diff = [bd for bd in bis_diff if bd != 0.0]
+print(bis_diff[1:20])
+
+ax3.violinplot([nano_diff,bis_diff])
+ax3.set_xticks([1,2])
+ax3.set_title( "CpG Methylation Distribution:Normal vs.Tumor" )
+ax3.set_xlabel("Sequence Method")
+ax3.set_ylabel("Percentage of Difference")
+ax3.set_xticklabels(["Nano-seq","Bisulfite-seq"])
+plt.show()
+fig.savefig( "multiple-plot week7" )
+
+
+
+
+
