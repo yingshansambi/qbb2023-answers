@@ -1,0 +1,202 @@
+#!/usr/bin/env python 
+
+import numpy as np
+import pandas as pd
+import statsmodels.api as sm
+import statsmodels.formula.api as smf
+from statsmodels.stats import multitest
+from pydeseq2 import preprocessing
+from pydeseq2.dds import DeseqDataSet
+from pydeseq2.ds import DeseqStats
+import matplotlib.pyplot as plt
+
+# read in data
+counts_df = pd.read_csv("gtex_whole_blood_counts_formatted.txt", index_col = 0)
+
+# read in metadata
+metadata = pd.read_csv("gtex_metadata.txt", index_col = 0)
+
+#Step1.2 Normalization
+counts_df_normed = preprocessing.deseq2_norm(counts_df)[0]
+counts_df_normed = np.log2(counts_df_normed + 1)
+
+#Step 1.3: Create a design matrix
+full_design_df = pd.concat([counts_df_normed, metadata], axis=1)
+# print(full_design_df)
+
+#Step 1.4: Running regression for a single gene
+model = smf.ols(formula = 'Q("DDX11L1") ~ SEX', data=full_design_df)
+results = model.fit()
+slope = results.params[1]
+pval = results.pvalues[1]
+# print(pval)
+# print(slope)
+# print(full_design_df.iloc[ :10]) # give you an idea how it looks like 
+
+#Step1.5 Extend this test to all genes
+
+#Now convert the header into a list 
+column_names = full_design_df.columns.values.tolist()
+# print(column_names)
+#Now get rid of the 'SEX', 'AGE', 'DTHHRDY' from the list 
+column_updated = column_names[: -3]
+# print(column_updated[:10])
+# print(len(column_updated))#The total number of the genes that we need to test is 54592
+
+# slope_list = []
+# pval_list = []
+
+# for genename in column_updated:
+# 	model_test = smf.ols(formula = 'Q(genename) ~ SEX', data=full_design_df)
+# 	results_test = model_test.fit()
+# 	slope_test = results_test.params[1]
+# 	slope_list.append(slope_test)
+# 	pval_test = results_test.pvalues[1]
+# 	pval_list.append(pval_test)
+
+# print(pval_list)
+
+# with open("pval_list.txt","w") as file1:
+# 	for pval_test in pval_list:
+# 		pval_test = str(pval_test)
+# 		file1.write(pval_test + "\n")
+# file1.close()
+
+# with open("slope_list.txt","w") as file2:
+# 	for slope_test in slope_list:
+# 		slope_test = str(slope_test)
+# 		file2.write(slope_test + "\n")
+# file2.close()
+
+#Read the pval file again 
+pval_list=[]
+for line in open('pval_list.txt'):
+	pval = line.rstrip('\n')
+	pval_list.append(pval)
+
+column_updated_filtered = []
+for i in range(len(pval_list)):
+	if pval_list[i] == 'nan':
+		continue
+	column_updated_filtered.append(column_updated[i])
+
+pval_list_filtered = [pval for pval in pval_list if pval != 'nan']
+
+pval_list_filtered = [float(i) for i in pval_list_filtered ]
+
+# print(len(column_updated_filtered))
+# print(len(pval_list_filtered))
+
+# print(column_updated_filtered)#
+# with open("10%FDR gene name.txt","w") as file:
+# 	for i in column_updated_filtered:
+# 		i = str(i)
+# 		file.write(i + "\n")
+# file.close()
+
+corrected_list = multitest.fdrcorrection(
+pval_list_filtered,
+alpha=0.1,
+method='indep',
+is_sorted=False)[1]
+# print(corrected_list)
+
+corrected_list = corrected_list.tolist()
+print(type(corrected_list))
+print(corrected_list[1:10])
+print(len(corrected_list))#The output is 52073
+
+
+#Exercise 2: Repeat differential expression testing with PyDESeq2
+dds = DeseqDataSet(
+    counts=counts_df,
+    metadata=metadata,
+    design_factors="SEX",
+    n_cpus=4,
+)
+
+dds.deseq2()
+stat_res = DeseqStats(dds)
+stat_res.summary()
+results = stat_res.results_df
+
+print(results)
+
+#get rid of the nan
+# deseq2_list = []
+# for i in range(len(results["padj"])): 
+# 	if np.isnan(results["padj"][i]):#"NaN":s
+# 		continue
+# 	deseq2_list.append(results["padj"][i])
+
+# print(len(deseq2_list))
+
+# deseq2_pvalfloat= []
+# for dpval in deseq2_list:
+# 	dpval = float(dpval)
+# 	deseq2_pvalfloat.append(dpval)
+
+# print(len(deseq2_pvalfloat))
+# results['under_10pct'] = results["padj"] < 0.1
+# deseq2_gene_name= results.loc[(results["under_10pct"] == True)]
+
+# for i in range(len(deseq2_pvalfloat)): 
+# 	if 0 < deseq2_pvalfloat[i] < 0.1:
+# 		deseq2_pvallistfiltered.append(deseq2_pvalfloat[i])
+
+# print(results.iloc[:,0])
+# print(len(deseq2_pvallistfiltered))#The output is 6569
+
+#Grab the gene name under with padj < 0.1 
+# deseq2_genelist = []
+# for i in range(len(results["padj"])):
+# 	for a in range(len(deseq2_pvallistfiltered)):
+# 		if results["padj"][i] == deseq2_pvallistfiltered[a]:
+# 			deseq2_genelist.append(results.iloc[0,:][i])
+
+# print(deseq2_genelist[1:10])
+
+
+#Exercise 3: Visualization 
+deseq2_pvallog10  = -np.log10(results["padj"])
+results['under_10pct'] = results["padj"] < 0.1
+print(results)
+
+deseq2_pvalf2c = results["log2FoldChange"].values
+print(deseq2_pvalf2c[1:50])
+
+fig,ax = plt.subplots()
+ax.scatter(x = deseq2_pvalf2c, y = deseq2_pvallog10)
+
+
+significant = results.loc[(results["under_10pct"] == True) & (np.absolute(results["log2FoldChange"]) > 1), ["log2FoldChange", "padj"]]
+ax.scatter(x = significant["log2FoldChange"], y = -np.log10(significant["padj"]))
+
+# ax.set_title( "Differential expression annotated by PyDESeq2" )
+# ax.set_xlabel("log2FoldChange")
+# ax.set_ylabel("-log10(padj)")
+# fig.savefig( "Vocano plot" )
+# plt.show()
+
+
+deseq2_significant = results.loc[results["under_10pct"] == True, :].index.tolist()
+print(deseq2_significant[1:10])
+#column_updated_filtered is the list from step 1 
+
+with open("10%FDR gene name_deseq.txt","w") as file1:
+	for i in deseq2_significant:
+		i = str(i)
+		file1.write(i + "\n")
+file1.close()
+
+# print(len(deseq2_significant))
+# print(len(column_updated_filtered))
+
+# both = set(deseq2_significant) & set(column_updated_filtered)
+# print(len([i for i in deseq2_significant if i in column_updated_filtered])) #The both value = 6569
+
+# combined_list = deseq2_significant + column_updated_filtered
+# print(len(combined_list))
+# combined_list_set = set(combined_list)
+# print(len(combined_list_set)) #The either or value = 52073
+
