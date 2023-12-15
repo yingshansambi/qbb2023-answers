@@ -1,0 +1,71 @@
+#!/usr/bin/env python 
+
+# import numpy as np
+# import pandas as pd
+# import statsmodels.api as sm
+# import statsmodels.formula.api as smf
+# from statsmodels.stats import multitest
+import matplotlib.pyplot as plt
+
+import scanpy as sc
+#Step 1.1: Computing a neighborhood graph
+# Read the 10x dataset filtered down to just the highly-variable genes
+adata = sc.read_h5ad("variable_data.h5")
+adata.uns['log1p']['base'] = None # This is needed due to a bug in scanpy
+sc.pp.neighbors(adata,10,40)
+
+#Step1.2:Leiden clustering
+sc.tl.leiden(adata)
+
+#Step 1.3: Visualizing clusters
+# fig,ax = plt.subplots(1,2)
+# sc.tl.umap(adata,maxiter = 900)#umap algorithm
+# sc.pl.umap(adata,color = "leiden", title = "Umap_plotting",ax = ax[0],show = False)
+
+# sc.tl.tsne(adata)
+# sc.pl.tsne(adata,color = "leiden",title = "Tsne_plotting",ax = ax[1],show = False)
+# plt.tight_layout()
+# plt.savefig("subplots.png")
+# plt.show()
+
+#Exercise 2: Identifying cluster marker genes
+
+#Step 2.1: Ranking genes in each cluster
+wilcoxon_adata = sc.tl.rank_genes_groups(adata, method = 'wilcoxon', groupby='leiden', use_raw=True, copy=True)
+
+logreg_adata = sc.tl.rank_genes_groups(adata, method = 'logreg', groupby='leiden', use_raw=True, copy=True)
+
+#Step 2.2: Visualizing marker genes
+# fig,ax = plt.subplots(1,2)
+# sc.pl.rank_genes_groups(wilcoxon_adata,method = 'wilcoxon', n_genes = 25, sharey=False, show=False, use_raw=True,ax = ax[0])
+
+# sc.pl.rank_genes_groups(logreg_adata,method = 'logreg', n_genes = 25, sharey=False, show=False, use_raw=True,ax = ax[1])
+# plt.tight_layout()
+# plt.savefig("subplots2.png")
+# plt.show()
+
+#-----------------------------------------------------------------------------------
+#Exercise 3: Identifying cluster cell types
+#Step 3.1: Reload Missing Genes
+leiden = adata.obs['leiden']
+umap = adata.obsm['X_umap']
+tsne = adata.obsm['X_tsne']
+adata = sc.read_h5ad('filtered_data.h5')
+adata.obs['leiden'] = leiden
+adata.obsm['X_umap'] = umap
+adata.obsm['X_tsne'] = tsne
+
+#Step 3.2: Matching genes to cell types
+fig,ax = plt.subplots(1,2)
+sc.tl.umap(adata,maxiter = 900)#umap algorithm
+sc.pl.umap(adata,color = "leiden", title = "Umap_plotting",ax = ax[0],show = False)
+
+sc.tl.tsne(adata)
+sc.pl.tsne(adata,color = "leiden",title = "Tsne_plotting",ax = ax[1],show = False)
+plt.tight_layout()
+plt.savefig("subplots3.png")
+plt.show()
+
+#Step 3.3: Putting it all together
+adata.rename_categories(adata)
+fig,ax = plt.subplots()
