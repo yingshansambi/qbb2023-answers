@@ -66,11 +66,17 @@ sc.pl.umap(adata,color = "FCGR3A", title = "FCGR3A Differential Expression",ax =
 
 # Gene3:CD79A
 sc.pl.umap(adata,color = "CD79A", title = "CD79A Differential Expression",ax = ax3,show = False)
-
-plt.tight_layout()
-plt.savefig("subplots4.png")
-plt.show()
+# plt.tight_layout()
+# plt.savefig("subplots4.png")
+# plt.show()
 
 #Step 3.3: Putting it all together
-# adata.rename_categories(adata,color = "leiden")
-# fig,ax = plt.subplots()
+fig,ax4 = plt.subplots()
+cat_list = ("Astrocyte","Pericytes"," Microglia","arterial SMC","fibroblast-like type 1","EC type 1","venous EC","arterial EC")
+adata.rename_categories(key = "leiden" , categories = cat_list)
+sc.pl.umap(adata,color = "leiden", title = "Differential Expression Across Cell Types",ax = ax4,show = False)
+plt.tight_layout()
+plt.savefig("plots5.png")
+plt.show()
+
+#
